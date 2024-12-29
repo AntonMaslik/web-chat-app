@@ -2,6 +2,7 @@ import express from "express";
 import http from "http";
 import { WebSocket, WebSocketServer } from "ws";
 import next from "next";
+import { faker } from "@faker-js/faker";
 
 const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev });
@@ -17,47 +18,35 @@ app.prepare().then(() => {
   const clients = new Map<string, WebSocket>();
 
   wss.on("connection", function connection(ws: WebSocket) {
-    let clientId: string | null = null;
+    const clientRandomName = faker.person.firstName();
 
     ws.on("message", function incoming(message: string) {
       const parsedMessage = JSON.parse(message);
 
-      if (parsedMessage.type === "register" && parsedMessage.clientId) {
-        clientId = parsedMessage.clientId;
+      clients.set(clientRandomName, ws);
+      console.log(`Client registered: ${clientRandomName}`);
 
-        if (clientId && typeof clientId === "string") {
-          clients.set(clientId, ws);
-          console.log(`Client registered: ${clientId}`);
-        }
-      }
+      if (parsedMessage.type === "message" && parsedMessage.content) {
+        const targetClients = clients;
 
-      if (
-        parsedMessage.type === "message" &&
-        parsedMessage.to &&
-        parsedMessage.content
-      ) {
-        const targetClient = clients.get(parsedMessage.to);
-
-        if (targetClient) {
-          targetClient.send(
+        for (const [, client] of targetClients) {
+          client.send(
             JSON.stringify({
-              from: clientId,
+              from: clientRandomName,
               content: parsedMessage.content,
             })
           );
           console.log(
-            `Message from ${clientId} to ${parsedMessage.to}: ${parsedMessage.content}`
+            `Message from ${clientRandomName} to all: ${parsedMessage.content}`
           );
-        } else {
-          console.log(`Client ${parsedMessage.to} not found`);
         }
       }
     });
 
     ws.on("close", () => {
-      if (clientId) {
-        clients.delete(clientId);
-        console.log(`Client disconnected: ${clientId}`);
+      if (clientRandomName) {
+        clients.delete(clientRandomName);
+        console.log(`Client disconnected: ${clientRandomName}`);
       }
     });
   });
