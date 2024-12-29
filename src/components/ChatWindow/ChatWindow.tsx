@@ -6,17 +6,9 @@ interface ChatWindowProps {
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({ messages }) => {
   return (
-    <div
-      style={{
-        border: "1px solid #ccc",
-        padding: "10px",
-        height: "300px",
-        overflowY: "scroll",
-        marginBottom: "10px",
-      }}
-    >
+    <div className="border border-gray-300 p-4 h-[300px] overflow-y-auto mb-4 rounded-lg shadow-sm">
       {messages.map((msg, index) => (
-        <div key={index} style={{ margin: "5px 0" }}>
+        <div className="my-2 p-2 bg-white rounded shadow" key={index}>
           {msg}
         </div>
       ))}
