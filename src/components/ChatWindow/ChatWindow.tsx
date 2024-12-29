@@ -1,4 +1,5 @@
 import React from "react";
+import { MessageAlert } from "../MessageAlert/MessageAlert";
 
 interface ChatWindowProps {
   messages: string[];
@@ -6,12 +7,27 @@ interface ChatWindowProps {
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({ messages }) => {
   return (
-    <div className="border border-gray-300 p-4 h-[300px] overflow-y-auto mb-4 rounded-lg shadow-sm">
-      {messages.map((msg, index) => (
-        <div className="my-2 p-2 bg-white rounded shadow" key={index}>
-          {msg}
-        </div>
-      ))}
+    <div className="border border-gray-300 p-4 h-[80vh] overflow-y-auto mb-4 overflow-y-scroll rounded-lg shadow-sm">
+      {messages.map((msg, index) => {
+        let parsedMessage;
+        try {
+          parsedMessage = JSON.parse(msg);
+        } catch (error: unknown) {
+          if (error instanceof SyntaxError) {
+            console.error("Failed to parse message:", msg, error.message);
+          } else {
+            console.error("Unexpected error:", error);
+          }
+          return null;
+        }
+        return (
+          <MessageAlert
+            key={index}
+            name={parsedMessage.from}
+            message={parsedMessage.content}
+          />
+        );
+      })}
     </div>
   );
 };
