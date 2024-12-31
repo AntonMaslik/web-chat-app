@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { ChatWindow } from "../components/ChatWindow/ChatWindow";
 import { MessageInput } from "../components/MessageInput/MessageInput";
-import { socket } from "@/socket";
+import { socket } from "@/socket/socket";
 
 const Home = () => {
   const [messages, setMessages] = useState<string[]>([]);
@@ -11,9 +11,11 @@ const Home = () => {
   useEffect(() => {
     socket.connect();
 
-    socket.on("message", (message) => {
-      setMessages((prevMessages) => [...prevMessages, message]);
-    });
+    if (socket.connected) {
+      socket.on("message", (message) => {
+        setMessages((prevMessages) => [...prevMessages, message]);
+      });
+    }
 
     return () => {
       if (!socket.connected) {
