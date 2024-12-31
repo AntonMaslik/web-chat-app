@@ -37,7 +37,6 @@ app.prepare().then(() => {
 
     redis.lrange("messages", -20, -1).then((messages) => {
       messages.forEach((message) => {
-        console.log(message);
         socket.emit("message", message);
       });
     });
