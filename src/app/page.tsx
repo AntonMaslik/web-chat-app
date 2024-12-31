@@ -1,32 +1,30 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { ChatWindow } from "../components/ChatWindow/ChatWindow";
 import { MessageInput } from "../components/MessageInput/MessageInput";
+import { socket } from "@/socket";
 
 const Home = () => {
   const [messages, setMessages] = useState<string[]>([]);
-  const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    socketRef.current = new WebSocket("ws://localhost:3001");
+    socket.connect();
 
-    socketRef.current.onmessage = (event) => {
-      setMessages((prevMessages) => [...prevMessages, event.data]);
-    };
+    socket.on("message", (message) => {
+      setMessages((prevMessages) => [...prevMessages, message]);
+    });
 
     return () => {
-      if (socketRef.current) {
-        socketRef.current.close();
+      if (!socket.connected) {
+        socket.disconnect();
       }
     };
   }, []);
 
   const sendMessage = (message: string) => {
-    if (socketRef.current) {
-      socketRef.current.send(
-        JSON.stringify({ type: "message", content: message })
-      );
+    if (socket.connected) {
+      socket.send(JSON.stringify({ type: "message", content: message }));
     }
   };
 
