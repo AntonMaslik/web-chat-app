@@ -7,37 +7,33 @@ import { socket } from "@/socket/socket";
 
 const Home = () => {
   const [messages, setMessages] = useState<string[]>([]);
-  const [isConnected, setIsConnected] = useState(false);
+  const [newMessage, setNewMessage] = useState(false);
+  const [isConnected, setIsConnected] = useState(socket.connected);
 
   useEffect(() => {
     socket.connect();
 
-    const handleConnect = () => {
+    if (socket.connected) {
       setIsConnected(true);
-    };
-
-    const handleDisconnect = () => {
+    } else {
       setIsConnected(false);
-    };
+    }
 
     const handleMessage = (message: string) => {
+      setNewMessage(true);
       setMessages((prevMessages) => [...prevMessages, message]);
+      setNewMessage(false);
     };
 
-    socket.on("connect", handleConnect);
-    socket.on("disconnect", handleDisconnect);
     socket.on("message", handleMessage);
 
     return () => {
-      socket.off("connect", handleConnect);
-      socket.off("disconnect", handleDisconnect);
       socket.off("message", handleMessage);
-      socket.disconnect();
     };
-  }, []);
+  }, [isConnected, newMessage]);
 
   const sendMessage = (message: string) => {
-    if (isConnected) {
+    if (socket.connected) {
       socket.send(JSON.stringify({ type: "message", content: message }));
     } else {
       console.error("Соединение не установлено. Сообщение не отправлено.");
