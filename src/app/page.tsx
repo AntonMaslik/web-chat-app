@@ -7,22 +7,18 @@ import { socket } from "@/socket/socket";
 
 const Home = () => {
   const [messages, setMessages] = useState<string[]>([]);
-  const [newMessage, setNewMessage] = useState(false);
-  const [isConnected, setIsConnected] = useState(socket.connected);
 
   useEffect(() => {
     socket.connect();
 
     if (socket.connected) {
-      setIsConnected(true);
+      console.log("Connected to server");
     } else {
-      setIsConnected(false);
+      console.error("Connection to server failed");
     }
 
     const handleMessage = (message: string) => {
-      setNewMessage(true);
       setMessages((prevMessages) => [...prevMessages, message]);
-      setNewMessage(false);
     };
 
     socket.on("message", handleMessage);
@@ -30,13 +26,13 @@ const Home = () => {
     return () => {
       socket.off("message", handleMessage);
     };
-  }, [isConnected, newMessage]);
+  }, []);
 
   const sendMessage = (message: string) => {
     if (socket.connected) {
       socket.send(JSON.stringify({ type: "message", content: message }));
     } else {
-      console.error("Соединение не установлено. Сообщение не отправлено.");
+      console.error("Connection is not established. Message not send.");
     }
   };
 
