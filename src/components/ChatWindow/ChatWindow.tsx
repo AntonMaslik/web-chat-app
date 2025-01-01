@@ -3,9 +3,10 @@ import { MessageAlert } from "../MessageAlert/MessageAlert";
 
 interface ChatWindowProps {
   messages: string[];
+  theme: "dark" | "light";
 }
 
-export const ChatWindow: React.FC<ChatWindowProps> = ({ messages }) => {
+export const ChatWindow: React.FC<ChatWindowProps> = ({ messages, theme }) => {
   return (
     <div className="border border-gray-300 p-4 h-[80vh] overflow-y-auto mb-4 overflow-y-scroll rounded-lg shadow-sm scrollbar-custom scroll-smooth">
       {messages.map((msg, index) => {
@@ -22,6 +23,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ messages }) => {
         }
         return (
           <MessageAlert
+            theme={theme}
             key={index}
             name={parsedMessage.from}
             message={parsedMessage.content}

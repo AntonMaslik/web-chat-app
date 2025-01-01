@@ -30,8 +30,10 @@ app.prepare().then(() => {
         `Client ${clientRandomName} IP: ${socket.handshake.address} send messages: ${messages}`
       );
 
-      messages.forEach((message) => {
-        socket.emit("message", message);
+      socket.on("ready", () => {
+        messages.forEach((message) => {
+          socket.emit("message", message);
+        });
       });
     });
 

@@ -13,6 +13,8 @@ const Home = () => {
 
     if (socket.connected) {
       console.log("Connected to server");
+
+      socket.emit("ready");
     } else {
       console.error("Connection to server failed");
     }
@@ -37,10 +39,10 @@ const Home = () => {
   };
 
   return (
-    <main className="container mx-auto p-4">
+    <main className={`container mx-auto p-4`}>
       <div>
         <h1 className="text-2xl font-bold mb-4 text-center">Web Chat</h1>
-        <ChatWindow messages={messages} />
+        <ChatWindow messages={messages} theme="dark" />
         <MessageInput onSend={sendMessage} />
       </div>
     </main>
