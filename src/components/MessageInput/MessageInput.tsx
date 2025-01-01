@@ -28,7 +28,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend }) => {
     <div className="relative flex items-center">
       <button
         onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-        className="absolute left-2 top-1/2 transform -translate-y-1/2 text-2xl"
+        className="absolute left-5 top-1/2 transform -translate-y-1/2 text-xl w-2 h-2 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200"
       >
         😀
       </button>
