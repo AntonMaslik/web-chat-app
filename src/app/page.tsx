@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { ChatWindow } from "../components/ChatWindow/ChatWindow";
 import { MessageInput } from "../components/MessageInput/MessageInput";
-import { socket } from "@/socket/socket";
+import { socket } from "@/utils/socket/socket";
 
 const Home = () => {
   const [messages, setMessages] = useState<string[]>([]);

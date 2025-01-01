@@ -2,21 +2,11 @@ import { createServer } from "node:http";
 import next from "next";
 import { Server } from "socket.io";
 import { faker } from "@faker-js/faker";
-import Redis from "ioredis";
 import dotenv from "dotenv";
+import { redis } from "./lib/redis";
+import logger from "@/utils/socket/logger";
 
 dotenv.config();
-
-export const redis = new Redis({
-  host: process.env.REDIS_HOST || "localhost",
-  port: (process.env.REDIS_PORT as unknown as number) || 6379,
-  password: process.env.REDIS_PASSWORD || undefined,
-  db: (process.env.REDIS_NUMBER as unknown as number) || 0,
-});
-
-redis.on("error", (err) => {
-  console.error("Redis connection error:", err);
-});
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = process.env.SOCKET_SERVER_HOST || "localhost";
@@ -36,6 +26,10 @@ app.prepare().then(() => {
     const clientRandomName = faker.person.firstName();
 
     redis.lrange("messages", -20, -1).then((messages) => {
+      logger.info(
+        `Client ${clientRandomName} IP: ${socket.handshake.address} send messages: ${messages}`
+      );
+
       messages.forEach((message) => {
         socket.emit("message", message);
       });
@@ -45,7 +39,9 @@ app.prepare().then(() => {
       const parsedMessage = JSON.parse(message);
 
       clients.set(clientRandomName, socket);
-      console.log(`Client registered: ${clientRandomName}`);
+      logger.info(
+        `Client registered: ${clientRandomName} IP: ${socket.handshake.address}`
+      );
 
       if (parsedMessage.type === "message" && parsedMessage.content) {
         const message = {
@@ -59,6 +55,8 @@ app.prepare().then(() => {
 
         redis.ltrim("messages", -1000, -1);
 
+        logger.info(`Save message from ${clientRandomName} in database`);
+
         for (const [, client] of clients) {
           client.send(
             JSON.stringify({
@@ -70,18 +68,20 @@ app.prepare().then(() => {
       }
     });
 
-    socket.on("close", () => {
+    socket.on("disconnect", () => {
       clients.delete(clientRandomName);
-      console.log(`Client disconnected: ${clientRandomName}`);
+      logger.info(
+        `Client disconnected: ${clientRandomName} IP: ${socket.handshake.address}`
+      );
     });
   });
 
   httpServer
     .once("error", (err) => {
-      console.error(err);
+      logger.error("Error http-server", err);
       process.exit(1);
     })
     .listen(port, hostname, () => {
-      console.log(`> Ready on http://${hostname}:${port}`);
+      logger.info(`Server ready on http://${hostname}:${port}`);
     });
 });
