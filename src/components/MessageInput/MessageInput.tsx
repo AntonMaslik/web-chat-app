@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import EmojiPicker from "emoji-picker-react";
 
 interface MessageInputProps {
   onSend: (message: string) => void;
@@ -6,10 +7,15 @@ interface MessageInputProps {
 
 export const MessageInput: React.FC<MessageInputProps> = ({ onSend }) => {
   const [message, setMessage] = useState<string>("");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const handleSend = () => {
     onSend(message);
     setMessage("");
+  };
+
+  const handleEmojiClick = (emoji: { emoji: string }) => {
+    setMessage((prev) => prev + emoji.emoji);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
@@ -19,18 +25,29 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend }) => {
   };
 
   return (
-    <div className="flex items-center space-x-2">
+    <div className="relative flex items-center">
+      <button
+        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+        className="absolute left-2 top-1/2 transform -translate-y-1/2 text-2xl"
+      >
+        😀
+      </button>
+      {showEmojiPicker && (
+        <div className="absolute bottom-full left-0 z-10 mb-2">
+          <EmojiPicker onEmojiClick={handleEmojiClick} />
+        </div>
+      )}
       <input
         type="text"
         value={message}
         onChange={(e) => setMessage(e.target.value)}
+        className="w-full border border-gray-300 rounded-full pl-12 pr-16 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        placeholder="Type a message..."
         onKeyDown={handleKeyDown}
-        placeholder="Type a message"
-        className="flex-grow p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
       <button
-        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         onClick={handleSend}
+        className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white text-sm px-4 py-1 rounded-full hover:bg-blue-600"
       >
         Send
       </button>
