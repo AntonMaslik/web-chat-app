@@ -11,11 +11,11 @@ export const MessageAlert: React.FC<MessageAlertProps> = ({
 }) => {
   return (
     <div
-      className="bg-slate-100 border-t border-b border-slate-200 text-blue-700 px-4 py-3 my-3"
+      className="bg-blue-50 border border-blue-200 text-blue-900 rounded-lg shadow-md p-4 my-4 animate-slide-in"
       role="alert"
     >
-      <p className="font-bold text-slate-400">{name}</p>
-      <p className="text-sm text-slate-600">{message}</p>
+      <p className="font-semibold text-green-700">{name}</p>
+      <p className="text-sm text-blue-600">{message}</p>
     </div>
   );
 };
