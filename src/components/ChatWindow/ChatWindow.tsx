@@ -7,7 +7,7 @@ interface ChatWindowProps {
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({ messages }) => {
   return (
-    <div className="border border-gray-300 p-4 h-[80vh] overflow-y-auto mb-4 overflow-y-scroll rounded-lg shadow-sm">
+    <div className="border border-gray-300 p-4 h-[80vh] overflow-y-auto mb-4 overflow-y-scroll rounded-lg shadow-sm scrollbar-custom scroll-smooth">
       {messages.map((msg, index) => {
         let parsedMessage;
         try {
