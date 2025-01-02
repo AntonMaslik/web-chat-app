@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { MessageAlert } from "../MessageAlert/MessageAlert";
 
 interface ChatWindowProps {
@@ -7,6 +7,12 @@ interface ChatWindowProps {
 }
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({ messages, theme }) => {
+  const chatEndRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
   return (
     <div className="border border-gray-300 p-4 h-[80vh] overflow-y-auto mb-4 overflow-y-scroll rounded-lg shadow-sm scrollbar-custom scroll-smooth">
       {messages.map((msg, index) => {
@@ -30,6 +36,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ messages, theme }) => {
           />
         );
       })}
+      <div ref={chatEndRef} />
     </div>
   );
 };

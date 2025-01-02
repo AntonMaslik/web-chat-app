@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import EmojiPicker from "emoji-picker-react";
+import EmojiPicker, { Theme } from "emoji-picker-react";
 
 interface MessageInputProps {
   onSend: (message: string) => void;
@@ -34,7 +34,10 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend }) => {
       </button>
       {showEmojiPicker && (
         <div className="absolute bottom-full left-0 z-10 mb-2">
-          <EmojiPicker onEmojiClick={handleEmojiClick} />
+          <EmojiPicker
+            theme={"dark" as Theme}
+            onEmojiClick={handleEmojiClick}
+          />
         </div>
       )}
       <input
