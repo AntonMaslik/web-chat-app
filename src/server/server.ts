@@ -30,10 +30,10 @@ app.prepare().then(() => {
 
     sendMessagesFromRedis(socket, clientRandomName);
 
+    setClientOnServer(socket, clientRandomName, clients);
+
     socket.on("message", (message) => {
       const parsedMessage = JSON.parse(message);
-
-      setClientOnServer(socket, clientRandomName, clients);
 
       if (parsedMessage.type === "message" && parsedMessage.content) {
         const message = {
