@@ -5,7 +5,7 @@ import logger from "@/utils/socket/logger";
 export function sendMessagesFromRedis(socket: Socket, clientName: string) {
   redis.lrange("messages", -20, -1).then((messages) => {
     logger.info(
-      `Client ${clientName} IP: ${socket.handshake.address} send messages: ${messages}`
+      `Client ${clientName} IP: ${socket.handshake.address} send messages from redis`
     );
 
     socket.on("ready", () => {
