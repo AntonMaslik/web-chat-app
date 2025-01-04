@@ -3,8 +3,11 @@ import next from "next";
 import { Server } from "socket.io";
 import { faker } from "@faker-js/faker";
 import dotenv from "dotenv";
-import { redis } from "./lib/redis";
 import logger from "@/utils/socket/logger";
+import { sendMessagesFromRedis } from "./lib/sendMessagesFromRedis";
+import { setClientOnServer } from "./lib/setClientOnServer";
+import { saveMessageInRedis } from "./lib/saveMessageInRedis";
+import { sendMessageAllClients } from "./lib/sendMessagesAllClients";
 
 dotenv.config();
 
@@ -25,25 +28,12 @@ app.prepare().then(() => {
   io.on("connection", (socket) => {
     const clientRandomName = faker.person.firstName();
 
-    redis.lrange("messages", -20, -1).then((messages) => {
-      logger.info(
-        `Client ${clientRandomName} IP: ${socket.handshake.address} send messages: ${messages}`
-      );
-
-      socket.on("ready", () => {
-        messages.forEach((message) => {
-          socket.emit("message", message);
-        });
-      });
-    });
+    sendMessagesFromRedis(socket, clientRandomName);
 
     socket.on("message", (message) => {
       const parsedMessage = JSON.parse(message);
 
-      clients.set(clientRandomName, socket);
-      logger.info(
-        `Client registered: ${clientRandomName} IP: ${socket.handshake.address}`
-      );
+      setClientOnServer(socket, clientRandomName, clients);
 
       if (parsedMessage.type === "message" && parsedMessage.content) {
         const message = {
@@ -53,20 +43,11 @@ app.prepare().then(() => {
           timestamp: new Date().toISOString(),
         };
 
-        redis.rpush("messages", JSON.stringify(message));
-
-        redis.ltrim("messages", -1000, -1);
+        saveMessageInRedis(JSON.stringify(message));
 
         logger.info(`Save message from ${clientRandomName} in database`);
 
-        for (const [, client] of clients) {
-          client.send(
-            JSON.stringify({
-              from: clientRandomName,
-              content: parsedMessage.content,
-            })
-          );
-        }
+        sendMessageAllClients(clients, message, clientRandomName);
       }
     });
 
