@@ -1,7 +1,6 @@
 import { createServer } from "node:http";
 import next from "next";
 import { Server } from "socket.io";
-import { faker } from "@faker-js/faker";
 import dotenv from "dotenv";
 import logger from "@/utils/socket/logger";
 import { sendMessagesFromRedis } from "./lib/sendMessagesFromRedis";
@@ -26,35 +25,41 @@ app.prepare().then(() => {
   const clients = new Map();
 
   io.on("connection", (socket) => {
-    const clientRandomName = faker.person.firstName();
+    sendMessagesFromRedis(socket);
 
-    sendMessagesFromRedis(socket, clientRandomName);
-
-    setClientOnServer(socket, clientRandomName, clients);
+    let clientName = "";
 
     socket.on("message", (message) => {
       const parsedMessage = JSON.parse(message);
 
-      if (parsedMessage.type === "message" && parsedMessage.content) {
+      if (
+        parsedMessage.type === "message" &&
+        parsedMessage.content &&
+        parsedMessage.userName
+      ) {
+        clientName = parsedMessage.userName;
+
+        setClientOnServer(socket, clientName, clients);
+
         const message = {
           userId: socket.id,
-          from: clientRandomName,
+          from: clientName,
           content: parsedMessage.content,
           timestamp: new Date().toISOString(),
         };
 
         saveMessageInRedis(JSON.stringify(message));
 
-        logger.info(`Save message from ${clientRandomName} in database`);
+        logger.info(`Save message from ${clientName} in database`);
 
-        sendMessageAllClients(clients, message, clientRandomName);
+        sendMessageAllClients(clients, message, clientName);
       }
     });
 
     socket.on("disconnect", () => {
-      clients.delete(clientRandomName);
+      clients.delete(clientName);
       logger.info(
-        `Client disconnected: ${clientRandomName} IP: ${socket.handshake.address}`
+        `Client disconnected: ${clientName} IP: ${socket.handshake.address}`
       );
     });
   });
