@@ -40,6 +40,8 @@ const Chat = () => {
 
     if (userNameFromStorage) {
       setUserName(userNameFromStorage);
+
+      socket.emit("register", userNameFromStorage);
     } else {
       router.push("/");
     }

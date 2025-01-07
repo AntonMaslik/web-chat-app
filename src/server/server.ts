@@ -29,18 +29,15 @@ app.prepare().then(() => {
 
     let clientName = "";
 
+    socket.on("register", (data) => {
+      clientName = data;
+      setClientOnServer(socket, clientName, clients);
+    });
+
     socket.on("message", (message) => {
       const parsedMessage = JSON.parse(message);
 
-      if (
-        parsedMessage.type === "message" &&
-        parsedMessage.content &&
-        parsedMessage.userName
-      ) {
-        clientName = parsedMessage.userName;
-
-        setClientOnServer(socket, clientName, clients);
-
+      if (parsedMessage.type === "message" && parsedMessage.content) {
         const message = {
           userId: socket.id,
           from: clientName,
