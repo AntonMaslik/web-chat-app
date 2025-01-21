@@ -1,4 +1,5 @@
 import Redis from "ioredis";
+import { clearRedisInit } from "./clearRedisInit";
 
 export const redis = new Redis({
   host: process.env.REDIS_HOST || "localhost",
@@ -9,4 +10,10 @@ export const redis = new Redis({
 
 redis.on("error", (err) => {
   console.error("Redis connection error:", err);
+});
+
+redis.on("connect", () => {
+  console.log("Connected to Redis");
+
+  clearRedisInit();
 });
